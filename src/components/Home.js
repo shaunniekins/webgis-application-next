@@ -1,27 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Navbar from "./Navbar";
 import { landCoverData } from "@/data/landCoverData";
 
-import {
-  MapContainer,
-  TileLayer,
-  GeoJSON,
-  Marker,
-  Popup,
-  Rectangle,
-  Circle,
-  Polygon,
-  Polyline,
-} from "react-leaflet";
+import { MapContainer, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 const Hero = () => {
   return (
     <div
       id="hero"
-      className="min-h-[100vh] w-screen flex bg-no-repeat bg-cover items-center "
+      className="min-h-[100vh] w-screen flex bg-no-repeat bg-cover items-center shadow-2xl shadow-purple-400 rounded-b-3xl"
       style={{ backgroundImage: "url('/bg-images/balabac.jpg')" }}>
       <div className="h-full w-full flex flex-col items-start ml-48 mt-64">
         <div className=" py-5 pl-10 pr-16 border-l-[0.5rem] border-purple-500 bg-transparent shadow backdrop-blur-[1rem] space-y-4 rounded-lg rounded-r-3xl">
@@ -54,21 +46,19 @@ const Hero = () => {
 const LandCoverCard = ({ title, description }) => (
   <li className="rounded-2xl rounded-t-md hover:scale-110 transition delay-75 duration-500 ease-in-out border-t-4 border-pink-700 p-6 bg-white shadow-lg backdrop-blur-[1rem] text-justify">
     <h2 className="font-bold">{title}</h2>
-    <p>{description}</p>
+    {/* <div className="hidden-description">
+      <p className="">{description}</p>
+    </div> */}
   </li>
 );
 
 const Content = () => {
-  const [gridCols, setGridCols] = useState(3); // Default to 1 column
-
-  const handleButtonClick = (cols) => {
-    setGridCols(cols);
-  };
+  const router = useRouter();
 
   const center = [11.803, 122.563]; //122.563, 11.803
   return (
     <div id="content" className="py-20 space-y-12">
-      <p className=" text-white text-justify">
+      <p className=" text-white text-justify i">
         The land cover of the Philippines is a diverse and vibrant tapestry of
         natural landscapes and human-made features that make this Southeast
         Asian archipelago a truly unique and beautiful country. Spanning over
@@ -77,37 +67,7 @@ const Content = () => {
         cultural, and economic richness.
       </p>
       <div className="flex flex-col space-y-4">
-        <ul className="flex gap-x-5 self-end">
-          <li>
-            <button
-              className={gridCols === 1 ? "text-white" : ""}
-              onClick={() => handleButtonClick(1)}>
-              1
-            </button>
-          </li>
-          <li>
-            <button
-              className={gridCols === 2 ? "text-white" : ""}
-              onClick={() => handleButtonClick(2)}>
-              2
-            </button>
-          </li>
-          <li>
-            <button
-              className={gridCols === 3 ? "text-white" : ""}
-              onClick={() => handleButtonClick(3)}>
-              3
-            </button>
-          </li>
-          <li>
-            <button
-              className={gridCols === 4 ? "text-white" : ""}
-              onClick={() => handleButtonClick(4)}>
-              4
-            </button>
-          </li>
-        </ul>
-        <ul className={`grid grid-cols-${gridCols} gap-6`}>
+        <ul className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {landCoverData.map((item, index) => (
             <LandCoverCard
               key={index}
@@ -117,13 +77,14 @@ const Content = () => {
           ))}
         </ul>
       </div>
-      <div className="flex w-full gap-x-10">
-        <div className="w-[50%] h-[46rem]">
+      <div className="flex flex-col md:flex-row w-full gap-x-10 gap-y-10 md:gap-y-0 py-10">
+        <div className="w-full md:w-[50%] h-[46rem] drop-shadow-2xl ">
           <MapContainer
             center={center}
             zoom={5.5}
             scrollWheelZoom={false}
-            style={{ height: "100%", width: "100%", "border-radius": "1rem" }}>
+            className=" border-y-4 p-2 border-pink-700"
+            style={{ height: "100%", width: "100%", borderRadius: "1rem" }}>
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -131,7 +92,7 @@ const Content = () => {
           </MapContainer>
         </div>
 
-        <p className="w-[50%] flex flex-col text-justify">
+        <p className="w-full md:w-[50%] flex flex-col text-justify text-white drop-shadow-2xl">
           The land cover of the Philippines is a diverse and captivating
           tapestry of natural beauty and human influence. This archipelagic
           nation, comprising 7,641 islands, is located in Southeast Asia and
@@ -172,30 +133,29 @@ const Content = () => {
           of many of its residents.
           <br />
           <br />
-          <span className="text-end">Go to Maps</span>
+          <span className="self-end">
+            <button
+              className="text-end underline hover:text-purple-500 transition delay-75 duration-500 ease-in-out"
+              onClick={() => router.push("/map")}>
+              Go to Maps
+            </button>
+          </span>
         </p>
       </div>
     </div>
   );
 };
 
-const Footer = () => {
-  return <></>;
-};
-
 const HomeComponent = () => {
   return (
-    <div className="no-scrollbar overflow-y-auto h-[100dvh] w-screen flex flex-col items-center font-Montserrat select-none">
-      <div className="container mx-auto w-full fixed top-0 flex justify-end z-50">
-        <Navbar />
-      </div>
+    <>
       <div>
         <Hero />
       </div>
-      <div className="container mx-auto">
+      <div className="container mx-auto px-3 md:px-0">
         <Content />
       </div>
-    </div>
+    </>
   );
 };
 

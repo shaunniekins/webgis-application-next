@@ -30,59 +30,47 @@ import Circle from "ol/geom";
 import Draw from "ol/interaction/Draw.js";
 import { getLength, getArea } from "ol/sphere";
 import CircleStyle from "ol/style/Circle.js";
-// import VectorSource from "ol/source/Vector";
-import Head from "next/head";
 import Navbar from "./Navbar";
-import { Coordinate } from "ol/coordinate";
-import { MapBrowserEvent } from "ol";
-import { Control } from "ol/control";
-import FullScreenControl2 from "ol/control/FullScreen";
-import Feature from "ol";
 
 import VectorLayer from "ol/layer/Vector.js";
 import VectorSource from "ol/source/Vector.js";
-import GeoJSON from "ol/format/GeoJSON.js";
 
-import { toStringHDMS } from "ol/coordinate";
-import { toLonLat } from "ol/proj";
+import { formatLength, formatArea } from "@/tools/formatFunction";
 
 import {
-  formatLength,
-  formatArea,
   newpopulateQueryTable,
   newaddRowHandlers,
   newaddGeoJsonToMap,
-} from "@/tools/functions";
+} from "@/tools/qryFunction";
 
 const MapComponent = () => {
   const mapTargetElement = useRef(null);
   const [map, setMap] = useState();
-  const [featureInfoFlag, setFeatureInfoFlag] = useState(true);
-  // const contentRef = useRef(null);
-  // const [lengthFlag, setLengthFlag] = useState(false);
-  // const [areaFlag, setAreaFlag] = useState(false);
+  const [propsValue, setPropsValue] = useState([]);
+  const [toggleFullScreen, setToggleFullScreen] = useState(false);
+  const [toggleFeatureInfo, setToggleFeatureInfo] = useState(false);
+  const [lengthFlag, setLengthFlag] = useState(false);
+  const [areaFlag, setAreaFlag] = useState(false);
+  const [draw, setDraw] = useState(null);
 
-  // const [geometryType, setGeometryType] = useState(GeometryType.LINE_STRING);
-  // const [vectorSource, setVectorSource] = useState();
+  const [mapVal, setMapVal] = useState(null);
 
   const butuanCityCoords = fromLonLat([125.568014, 8.8904]);
   const philippinesCoords = fromLonLat([122.563, 11.803]);
 
   const mapView = new View({
     center: philippinesCoords,
-    zoom: 6.5,
+    zoom: 6,
   });
 
   const nonTile = new TileLayer({
     title: "None",
     type: "base",
-    // visible: true,
   });
 
   const osmTile = new TileLayer({
     title: "OpenStreetMap",
     type: "base",
-    // visible: true,
     source: new OSM(),
   });
 
@@ -150,9 +138,22 @@ const MapComponent = () => {
     }),
   });
 
+  const add_municipalities_ph = new ImageLayer({
+    title: "Municipalities of the Philippines",
+    source: new ImageWMS({
+      url: "http://localhost:8080/geoserver/ITE-18-WEBGIS/wms",
+      params: {
+        LAYERS: "ITE-18-WEBGIS:Municipalities",
+        TILED: true,
+      },
+      serverType: "geoserver",
+      visible: true,
+    }),
+  });
+
   const overlayLayers = new LayerGroup({
     title: "Overlays",
-    layers: [add_butuan, add_land_cover_ph],
+    layers: [add_butuan, add_municipalities_ph, add_land_cover_ph],
   });
 
   const layerSwitcher = new LayerSwitcher({
@@ -171,27 +172,6 @@ const MapComponent = () => {
     bar: true,
     text: true,
   });
-
-  const container = document.getElementById("popup");
-  const closer = document.getElementById("popup-closer");
-
-  const popup = new Overlay({
-    element: document.getElementById("popup"), // Assuming you have an element with ID "popup"
-    autoPan: true,
-    autoPanAnimation: {
-      duration: 250,
-    },
-  });
-
-  useEffect(() => {
-    const closer = document.getElementById("popup-closer");
-
-    closer.onclick = function () {
-      popup.setPosition(undefined);
-      closer.blur();
-      return false;
-    };
-  }, []);
 
   const source = new VectorSource();
   let vector = new VectorLayer({
@@ -214,166 +194,203 @@ const MapComponent = () => {
   });
 
   useEffect(() => {
-    const mapID = mapTargetElement.current;
-    const map = new Map({
-      target: mapID,
-      controls: [layerSwitcher, mousePosition, scaleControl],
-      view: mapView,
-      layers: [baseLayers, overlayLayers, vector],
-      overlay: [popup],
-    });
-    map.setTarget(mapTargetElement.current || "");
-    setMap(map);
+    try {
+      const mapID = mapTargetElement.current;
+      const map = new Map({
+        target: mapID,
+        controls: [layerSwitcher, mousePosition, scaleControl],
+        view: mapView,
+        layers: [baseLayers, overlayLayers, vector],
+      });
+      map.setTarget(mapTargetElement.current || "");
+      setMap(map);
 
-    const container = document.getElementById("popup");
-    const content = document.getElementById("popup-content");
+      const fetchFeatureInfo = async (url) => {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        const feature = data.features[0];
+        if (feature && feature.properties) {
+          return feature.properties;
+        }
+        return null;
+      };
 
-    const handlePopupClick = (layer, propertyName, e) => {
-      if (featureInfoFlag) {
-        content.innerHTML = " "; // Clear any previous content
+      const handlePopupClick = async (layers, e) => {
         const resolution = mapView.getResolution();
         const projection = mapView.getProjection();
 
-        const url = layer
-          .getSource()
-          .getFeatureInfoUrl(e.coordinate, resolution, projection, {
-            INFO_FORMAT: "application/json",
-            propertyName: propertyName,
-          });
-
-        if (url) {
-          fetch(url)
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error("Network response was not ok");
-              }
-              return response.json();
-            })
-            .then((data) => {
-              const feature = data.features[0];
-              if (feature && feature.properties) {
-                const props = feature.properties;
-                console.log("props", props);
-
-                content.innerHTML = Object.keys(props)
-                  .map((key) => `<h2>${key}: </h2><p>${props[key]}</p>`)
-                  .join("<br>");
-                popup.setPosition(philippinesCoords);
-
-                // popup.setPosition(e.coordinate);
-              }
-            })
-            .catch((error) => {
-              console.error("Error fetching feature info:", error);
-              content.innerHTML = "Error fetching feature info";
-              popup.setPosition(e.coordinate);
+        const fetchPromises = layers.map(({ layer, propertyName }) => {
+          const url = layer
+            .getSource()
+            .getFeatureInfoUrl(e.coordinate, resolution, projection, {
+              INFO_FORMAT: "application/json",
+              propertyName: propertyName,
             });
-        } else {
-          popup.setPosition(undefined);
-        }
-      }
-    };
 
-    map.on("singleclick", function (e) {
-      handlePopupClick(add_land_cover_ph, "DESCRIPT,AREA", e);
-      handlePopupClick(add_butuan, "barangay,class,shape_area", e);
-    });
-    return () => map.setTarget("");
+          if (url) {
+            return fetchFeatureInfo(url);
+          }
+          return Promise.resolve(null);
+        });
+
+        const results = await Promise.all(fetchPromises);
+        const props = results.reduce(
+          (acc, result) => ({ ...acc, ...result }),
+          {}
+        );
+        setPropsValue(props);
+      };
+
+      map.on("singleclick", function (e) {
+        handlePopupClick(
+          [
+            { layer: add_land_cover_ph, propertyName: "DESCRIPT,AREA" },
+            { layer: add_butuan, propertyName: "barangay,class,shape_area" },
+            { layer: add_municipalities_ph, propertyName: "Mun_Name,Pro_Name" },
+          ],
+          e
+        );
+        // console.log("toggleFeatureInfo", toggleFeatureInfo);
+      });
+
+      return () => map.setTarget("");
+    } catch (error) {
+      console.error("Error creating map:", error);
+    }
   }, []);
 
   const home = (map) => {
     const view = map.getView();
     const newCenter = philippinesCoords;
-    view.setZoom(6.5);
+    view.setZoom(6);
     view.setCenter(newCenter);
   };
 
-  const toggleFullScreen = (map) => {
-    let fullScreenFlag = false;
-    fullScreenFlag = !fullScreenFlag;
+  useEffect(() => {
     const mapID = document.getElementById("map");
 
+    const handleFullScreenChange = () => {
+      if (document.fullscreenElement) {
+        setToggleFullScreen(true);
+      } else {
+        setToggleFullScreen(false);
+      }
+    };
+
+    document.addEventListener("fullscreenchange", handleFullScreenChange);
+
     if (mapID) {
-      if (fullScreenFlag) {
+      if (toggleFullScreen) {
         if (mapID.requestFullscreen) {
           mapID.requestFullscreen();
         } else if (mapID.mozRequestFullscreen) {
+          /* Firefox */
           mapID.mozRequestFullscreen();
         } else if (mapID.webkitRequestFullscreen) {
+          /* Chrome, Safari and Opera */
           mapID.webkitRequestFullscreen();
         } else if (mapID.msRequestFullscreen) {
+          /* IE/Edge */
           mapID.msRequestFullscreen();
         }
-      } else {
+      } else if (document.fullscreenElement) {
         if (document.exitFullscreen) {
           document.exitFullscreen();
         } else if (document.mozCancelFullScreen) {
+          /* Firefox */
           document.mozCancelFullScreen();
         } else if (document.webkitExitFullscreen) {
+          /* Chrome, Safari and Opera */
           document.webkitExitFullscreen();
         } else if (document.msExitFullscreen) {
+          /* IE/Edge */
           document.msExitFullscreen();
         }
       }
     }
-  };
 
-  const toggleFeatureInfo = (map) => {
-    const mapID = document.getElementById("map");
+    // Cleanup function to remove the event listener when the component unmounts
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullScreenChange);
+    };
+  }, [toggleFullScreen]);
 
-    setFeatureInfoFlag(!featureInfoFlag);
-
-    if (!featureInfoFlag) {
-      popup.setPosition(undefined);
+  const handleToggleFeatureInfo = () => {
+    setToggleFeatureInfo(!toggleFeatureInfo);
+    setLengthFlag(false);
+    setAreaFlag(false);
+    setPropsValue([]);
+    if (draw) {
+      map.removeInteraction(draw);
+      setDraw(null);
     }
+    const elements = document.getElementsByClassName(
+      "ol-tooltip ol-tooltip-static"
+    );
+    while (elements.length > 0) elements[0].remove();
   };
-
-  let lengthFlag = false;
-  let areaFlag = false;
-  let draw;
 
   const toggleLengthMeasure = (map) => {
-    const mapID = document.getElementById("map");
-    lengthFlag = !lengthFlag;
-
     if (lengthFlag) {
-      map.removeInteraction(draw);
-      addInteraction("LineString", map);
+      setLengthFlag(false);
+      if (draw) {
+        map.removeInteraction(draw);
+        setDraw(null);
+      }
+      const elements = document.getElementsByClassName(
+        "ol-tooltip ol-tooltip-static"
+      );
+      while (elements.length > 0) elements[0].remove();
     } else {
-      map.removeInteraction(draw);
+      setLengthFlag(true);
+      setToggleFeatureInfo(false);
+      setAreaFlag(false); // Deactivate the area measurement
+      if (draw) {
+        map.removeInteraction(draw);
+        setDraw(null);
+      }
       source.clear();
       const elements = document.getElementsByClassName(
         "ol-tooltip ol-tooltip-static"
       );
       while (elements.length > 0) elements[0].remove();
+      addInteraction("LineString", map);
     }
   };
 
   const toggleAreaMeasure = (map) => {
-    const mapID = document.getElementById("map");
-    // setAreaFlag(!areaFlag);
-    areaFlag = !areaFlag;
-
     if (areaFlag) {
-      map.removeInteraction(draw);
-      addInteraction("Polygon", map);
+      setAreaFlag(false);
+      if (draw) {
+        map.removeInteraction(draw);
+        setDraw(null);
+      }
+      const elements = document.getElementsByClassName(
+        "ol-tooltip ol-tooltip-static"
+      );
+      while (elements.length > 0) elements[0].remove();
     } else {
-      map.removeInteraction(draw);
+      setAreaFlag(true);
+      setToggleFeatureInfo(false);
+      setLengthFlag(false); // Deactivate the length measurement
+      if (draw) {
+        map.removeInteraction(draw);
+        setDraw(null);
+      }
       source.clear();
       const elements = document.getElementsByClassName(
         "ol-tooltip ol-tooltip-static"
       );
       while (elements.length > 0) elements[0].remove();
+      addInteraction("Polygon", map);
     }
   };
 
-  let continuePolygonMsg =
-    "Click to continue drawing the polygon, Double click to complete it.";
-  let continuelineMsg =
-    "Click to continue drawing the line, Double click to complete it.";
-
   const addInteraction = (geometryType, map) => {
-    draw = new Draw({
+    const newDraw = new Draw({
       source: source,
       type: geometryType,
       style: new Style({
@@ -396,53 +413,76 @@ const MapComponent = () => {
         }),
       }),
     });
-    map.addInteraction(draw);
-
-    createMeasureTooltip(map);
-    createHelpTooltip(map);
-
-    let sketch;
-
-    let pointerMoveHandler = function (evt) {
-      if (evt.dragging) {
-        return;
-      }
-      let helpMsg = "Click to start drawing";
-      if (sketch) {
-        let geom = sketch.getGeometry();
-      }
-    };
-
-    map.on("pointermove", pointerMoveHandler);
-
-    draw.on("drawstart", function (evt) {
-      sketch = evt.feature;
-      let tooltipCoord = evt.Coordinate;
-      sketch.getGeometry().on("change", function (evt) {
-        let geom = evt.target;
-        let output;
-        if (geom.getType() === "Polygon") {
-          output = formatArea(geom);
-          tooltipCoord = geom.getInteriorPoint().getCoordinates();
-        } else if (geom.getType() === "LineString") {
-          output = formatLength(geom);
-          tooltipCoord = geom.getLastCoordinate();
-        }
-        measureTooltipElement.innerHTML = output;
-        measureTooltip.setPosition(tooltipCoord);
-      });
-    });
-
-    draw.on("drawend", function () {
-      measureTooltipElement.className = "ol-tooltip ol-tooltip-static";
-      measureTooltip.setOffset([0, -7]);
-      //unset sketch
-      sketch = null;
-      //unset tooltip so that a new one can be created
-      measureTooltipElement = null;
-      createMeasureTooltip(map);
-    });
+    setDraw(newDraw);
+    setMapVal(map);
+    map.addInteraction(newDraw);
   };
+
+  useEffect(() => {
+    if (mapVal) {
+      createMeasureTooltip(mapVal);
+      createHelpTooltip(mapVal);
+
+      let sketch;
+
+      let pointerMoveHandler = function (evt) {
+        if (evt.dragging) {
+          return;
+        }
+        let helpMsg = "Click to start drawing";
+        if (sketch) {
+          let geom = sketch.getGeometry();
+        }
+      };
+
+      mapVal.on("pointermove", pointerMoveHandler);
+
+      if ((areaFlag || lengthFlag) && draw) {
+        draw.on("drawstart", function (evt) {
+          sketch = evt.feature;
+          let tooltipCoord = evt.Coordinate;
+          sketch.getGeometry().on("change", function (evt) {
+            let geom = evt.target;
+            let output;
+            if (geom.getType() === "Polygon") {
+              output = formatArea(geom);
+              tooltipCoord = geom.getInteriorPoint().getCoordinates();
+            } else if (geom.getType() === "LineString") {
+              output = formatLength(geom);
+              tooltipCoord = geom.getLastCoordinate();
+            }
+            measureTooltipElement.innerHTML = output;
+            measureTooltip.setPosition(tooltipCoord);
+          });
+        });
+
+        draw.on("drawend", function () {
+          measureTooltipElement.className = "ol-tooltip ol-tooltip-static";
+          measureTooltip.setOffset([0, -7]);
+          //unset sketch
+          sketch = null;
+          //unset tooltip so that a new one can be created
+          measureTooltipElement = null;
+          createMeasureTooltip(mapVal);
+        });
+      }
+      return () => {
+        if (helpTooltip) {
+          mapVal.removeOverlay(helpTooltip);
+          if (helpTooltipElement) {
+            helpTooltipElement.parentNode.removeChild(helpTooltipElement);
+          }
+        }
+
+        if (measureTooltip) {
+          mapVal.removeOverlay(measureTooltip);
+          if (measureTooltipElement) {
+            measureTooltipElement.parentNode.removeChild(measureTooltipElement);
+          }
+        }
+      };
+    }
+  }, [areaFlag, lengthFlag, mapVal]);
 
   /** START FUNCTIONS (MEASUREMENT) **/
 
@@ -452,7 +492,7 @@ const MapComponent = () => {
   let measureTooltipElement;
   let measureTooltip;
 
-  function createHelpTooltip(map) {
+  const createHelpTooltip = (map) => {
     if (helpTooltipElement) {
       helpTooltipElement.parentNode.removeChild(helpTooltipElement);
     }
@@ -464,7 +504,7 @@ const MapComponent = () => {
       positioning: "center-left",
     });
     map.addOverlay(helpTooltip);
-  }
+  };
 
   const createMeasureTooltip = (map) => {
     map.getViewport().addEventListener("mouseout", function () {
@@ -505,8 +545,6 @@ const MapComponent = () => {
   let qryFlag = false;
   const toggleQry = (map) => {
     qryFlag = !qryFlag;
-    console.log("qryFlag", qryFlag);
-    console.log("geojson", geojson);
 
     if (qryFlag) {
       if (geojson) {
@@ -828,99 +866,108 @@ const MapComponent = () => {
 
   return (
     <>
-      <div className="container mx-auto place-items-center">
-        <Navbar />
-
-        <div className=" ">
-          <div className="homeButtonDiv">
-            <button onClick={() => home(map)} className="myButton">
+      <div
+        id="map"
+        className="w-full h-[88dvh] overflow-hidden relative rounded-lg shadow-purple-400 shadow-2xl border-y-4 border-pink-700 p-2"
+        ref={mapTargetElement}>
+        <div className="flex flex-col absolute z-50 mt-3 ml-2 gap-2">
+          <div className="flex gap-1">
+            <button
+              onClick={() => home(map)}
+              className="z-40 bg-purple-500 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100">
               <img
                 src="../../images/controls/home.png"
                 alt="Home"
-                className="myButtonImage"
+                className="w-5 h-5 brightness-0 align-middle"
               />
             </button>
-          </div>
-          <div className="fsButtonDiv">
-            <button onClick={() => toggleFullScreen(map)} className="myButton">
+            <button
+              onClick={() => setToggleFullScreen(!toggleFullScreen)}
+              className={`z-40 bg-purple-500 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100 ${
+                toggleFullScreen && "bg-blue-100"
+              }`}>
               <img
                 src="../../images/controls/fullscreen.png"
                 alt="Fullscreen"
-                className="myButtonImage"
+                className="w-5 h-5 brightness-0 align-middle"
               />
             </button>
-          </div>
-          <div className="featureInfoButtonDiv">
             <button
-              onClick={() => toggleFeatureInfo(map)}
-              className={` ${featureInfoFlag && "bg-blue-400"}`}>
+              onClick={() => handleToggleFeatureInfo()}
+              className={`${
+                toggleFeatureInfo ? "bg-green-100" : "bg-purple-500"
+              } z-40 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100`}>
               <img
                 src="../../images/controls/featureInfo.png"
                 alt="Feature Info"
-                className="myButtonImage"
+                className="w-5 h-5 brightness-0 align-middle"
               />
             </button>
-          </div>
-          <div className="lengthButtonDiv">
             <button
               onClick={() => toggleLengthMeasure(map)}
-              className={"myButton"}>
+              className={`${
+                lengthFlag ? "bg-green-100" : "bg-purple-500"
+              } z-40 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100`}>
               <img
                 src="../../images/controls/length.png"
                 alt="Length"
-                className="myButtonImage"
+                className="w-5 h-5 brightness-0 align-middle"
               />
             </button>
-          </div>
-
-          <div className="areaButtonDiv">
             <button
               onClick={() => toggleAreaMeasure(map)}
-              className={"myButton"}>
+              className={`${
+                areaFlag ? "bg-green-100" : "bg-purple-500"
+              } z-40 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100`}>
               <img
                 src="../../images/controls/area.png"
                 alt="Area"
-                className="myButtonImage"
+                className="w-5 h-5 brightness-0 align-middle"
               />
             </button>
-          </div>
-
-          <div className="ziButtonDiv">
-            <button onClick={() => zoomIn(map)} className="myButton">
+            <button
+              onClick={() => zoomIn(map)}
+              className="z-40 bg-purple-500 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100">
               <img
                 src="../../images/controls/zoom-in.png"
                 alt="Zoom-in"
-                className="myButtonImage"
+                className="w-5 h-5 brightness-0 align-middle"
               />
             </button>
-          </div>
-
-          <div className="zoButtonDiv">
-            <button onClick={() => zoomOut(map)} className="myButton">
+            <button
+              onClick={() => zoomOut(map)}
+              className="z-40 bg-purple-500 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100">
               <img
                 src="../../images/controls/zoom-out.png"
                 alt="Zoom-out"
-                className="myButtonImage"
+                className="w-5 h-5 brightness-0 align-middle"
               />
             </button>
-          </div>
-          <div className="qryButtonDiv">
-            <button onClick={() => toggleQry(map)} className={"myButton"}>
+            <button
+              onClick={() => toggleQry(map)}
+              className="z-40 bg-purple-500 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100">
               <img
                 src="../../images/controls/attribute-query.png"
                 alt="Attribute Query"
-                className="myButtonImage"
+                className="w-5 h-5 brightness-0 align-middle"
               />
             </button>
           </div>
-        </div>
-
-        <div id="map" ref={mapTargetElement}></div>
-
-        {/* <div id="popup-content"></div> */}
-        <div id="popup" className="ol-popup">
-          <a href="#" id="popup-closer" className="ol-popup-closer"></a>
-          <div id="popup-content"></div>
+          {toggleFeatureInfo && propsValue.length !== 0 && (
+            <div className="bg-purple-500 opacity-80 text-sm p-2 rounded-lg shadow backdrop-blur-[1rem] text-left text-white">
+              {Object.entries(propsValue).map(([key, value], index) => (
+                <div key={index}>
+                  <p>
+                    <span className=" font-bold">
+                      {key}: {""}
+                    </span>
+                    {value}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+          <div></div>
         </div>
       </div>
     </>

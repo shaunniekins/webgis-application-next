@@ -11,6 +11,19 @@ body {
   overflow: hidden;
 }
 
+.hidden-description {
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+li:hover .hidden-description {
+  opacity: 1;
+  visibility: visible;
+  position: relative;
+}
+
 /* Hide scrollbar for Chrome, Safari and Opera */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -22,46 +35,8 @@ body {
   scrollbar-width: none; /* Firefox */
 }
 
-.custom-popover {
-  display: none;
-  position: absolute;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  padding: 10px;
-  z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.custom-popover-title {
-  font-weight: bold;
-}
-
-.custom-popover-content-code {
-  font-family: monospace;
-}
-
-#marker {
-  width: 20px;
-  height: 20px;
-  border: 1px solid #088;
-  border-radius: 10px;
-  background-color: #0ff;
-  opacity: 0.5;
-}
-
-* #map {
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.layer-switcher {
-  max-width: 300px;
-  color: black;
-}
-
 .mousePosition {
-  position: fixed;
+  position: absolute;
   top: auto;
   right: auto;
   bottom: 5px;
@@ -74,100 +49,6 @@ body {
   background-color: rgba(255, 255, 255, 0.6);
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   font-size: 12px;
-}
-
-/* popup info style */
-.ol-popup {
-  position: absolute;
-  background-color: #b8cffb;
-  opacity: 0.9;
-  box-shadow: 1px 4px rgba(0, 0, 0, 0.2);
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid #cccccc;
-  bottom: 12px;
-  left: -50px;
-  min-width: 280px;
-}
-
-.ol-popup:after,
-.ol-popup:before {
-  top: 100%;
-  border: solid transparent;
-  content: " ";
-  height: 0;
-  width: 0;
-  position: absolute;
-  pointer-events: none;
-}
-
-.ol-popup:after {
-  border-color: rgba(255, 255, 255, 0);
-  border-top-color: white;
-  border-width: 10px;
-  left: 48px;
-  margin-left: -10px;
-}
-.ol-popup:before {
-  border-color: rgba(204, 204, 204, 0);
-  border-top-color: #cccccc;
-  border-width: 11px;
-  left: 48px;
-  margin-left: -11px;
-}
-.ol-popup-closer {
-  text-decoration: none;
-  position: absolute;
-  top: 2px;
-  right: 8px;
-}
-
-.ol-popup-closer:after {
-  content: "\00d7";
-}
-
-.myButtonImage {
-  width: 20px;
-  height: 20px;
-  filter: brightness(0);
-  vertical-align: middle;
-}
-
-.myButton {
-  background-color: rgba(255, 179, 186, 0.6);
-  color: black;
-  font-weight: 700;
-  height: 30px;
-  width: 30px;
-  border-radius: 2px;
-  border: none;
-  /* align-items: center; */
-  display: grid;
-  /* grid-template-rows: auto; */
-  place-items: center;
-}
-
-.myButton:hover {
-  background-color: rgba(186, 225, 225, 0.8);
-}
-
-.myButton.clicked {
-  background-color: rgba(186, 255, 201, 0.8);
-}
-
-.myButton.clicked:hover {
-  background-color: rgba(186, 225, 225, 1);
-}
-
-.homeButtonDiv,
-.fsButtonDiv,
-.featureInfoButtonDiv,
-.lengthButtonDiv,
-.areaButtonDiv,
-.ziButtonDiv,
-.zoButtonDiv {
-  display: inline-block;
-  margin: 10px auto auto 10px;
 }
 
 .ol-tooltip {
@@ -212,11 +93,6 @@ body {
   background-color: rgba(200, 200, 200, 0.6);
 }
 
-.qryButtonDiv {
-  display: inline-block;
-  margin: 2px auto auto 10px;
-}
-
 .attQueryDiv {
   top: 60px;
   left: 10px;
@@ -237,6 +113,7 @@ body {
   background-color: #355070;
   height: 35px;
 }
+
 #headerDiv label {
   color: white;
 }

@@ -2,6 +2,7 @@
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Image from "next/image";
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -31,48 +32,28 @@ const Navbar = () => {
     },
   ];
 
-  let pageTitle, pageDescription, logoUrl;
-
-  switch (pathname) {
-    case "/home":
-      pageTitle = "Home | WebGIS";
-      pageDescription = "Home page of WebGIS";
-      //   logoUrl = "lco-logo-enhanced.svg";
-      break;
-    case "/about":
-      pageTitle = "About | WebGIS";
-      pageDescription = "About page of WebGIS";
-      break;
-    case "/map":
-      pageTitle = "Map | WebGIS";
-      pageDescription = "Map page of WebGIS";
-      break;
-    default:
-      pageTitle = "WebGIS";
-      pageDescription = "WebGIS";
-      break;
-  }
-
   return (
     <>
-      <title>{pageTitle}</title>
-      <meta name="description" content={pageDescription} key="desc" />
-      {/* <link rel="icon" href={logoUrl} /> */}
-
       <div className="w-full z-50 flex font-Montserrat select-none my-5 ">
-        <div className="w-full flex justify-end  px-5 font-Montserrat space-x-3 select-none">
-          {buttons.map((button, index) => (
-            <button
-              className={`hover:scale-110 transition delay-75 duration-500 ease-in-out text-[18px] w-24 py-2 rounded-full text-white ${
-                pathname === button.path
-                  ? "bg-purple-500 text-white"
-                  : "hover:bg-purple-300 hover:text-white"
-              }`}
-              key={index}
-              onClick={button.action}>
-              {button.label}
-            </button>
-          ))}
+        <div className="w-full flex justify-between items-center px-5 font-Montserrat select-none">
+          {/* <Image src="/logo.jpeg" width={60} height={60} alt="Logo" /> */}
+          <div className="flex items-center justify-center bg-purple-900 text-white rounded-full py-2 px-4 shadow-lg">
+            <h1 className="text-2xl font-bold">GROUP 1</h1>
+          </div>
+          <div className="space-x-3">
+            {buttons.map((button, index) => (
+              <button
+                className={`hover:scale-110 transition delay-75 duration-500 ease-in-out text-[18px] w-24 py-2 rounded-full text-white ${
+                  pathname === button.path
+                    ? "bg-purple-900 text-white border-t-4 border-pink-700"
+                    : "bg-purple-600 border-t-4 border-pink-700 text-gray-600 hover:bg-green-100 hover:text-black"
+                }`}
+                key={index}
+                onClick={button.action}>
+                {button.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </>
