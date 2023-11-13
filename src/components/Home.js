@@ -8,6 +8,7 @@ import { landCoverData } from "@/data/landCoverData";
 
 import { MapContainer, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import dynamic from "next/dynamic";
 
 const Hero = () => {
   return (
@@ -54,6 +55,16 @@ const LandCoverCard = ({ title, description }) => (
   </li>
 );
 
+const DynamicMapContainer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.MapContainer),
+  { ssr: false }
+);
+
+const DynamicTileLayer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.TileLayer),
+  { ssr: false }
+);
+
 const Content = () => {
   const router = useRouter();
 
@@ -81,7 +92,18 @@ const Content = () => {
       </div>
       <div className="flex flex-col md:flex-row w-full gap-x-10 gap-y-10 md:gap-y-0 py-10">
         <div className="w-full md:w-[50%] h-[46rem] drop-shadow-2xl ">
-          <MapContainer
+          <DynamicMapContainer
+            center={center}
+            zoom={5.5}
+            scrollWheelZoom={false}
+            className=" border-y-4 p-2 border-pink-700"
+            style={{ height: "100%", width: "100%", borderRadius: "1rem" }}>
+            <DynamicTileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          </DynamicMapContainer>
+          {/* <MapContainer
             center={center}
             zoom={5.5}
             scrollWheelZoom={false}
@@ -91,7 +113,7 @@ const Content = () => {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-          </MapContainer>
+          </MapContainer> */}
         </div>
 
         <p className="w-full md:w-[50%] flex flex-col text-justify text-white drop-shadow-2xl">

@@ -737,133 +737,133 @@ const MapComponent = () => {
   //   initializeMapLayerSelection(map);
   // }, []);
 
-  useEffect(() => {
-    document.addEventListener("DOMContentLoaded", function () {
-      document
-        .getElementById("selectLayer")
-        .addEventListener("change", function () {
-          let select = document.getElementById("selectAttribute");
-          while (select.options.length > 0) {
-            select.remove(0);
-          }
-          let value_layer = this.value;
+  // useEffect(() => {
+  //   document.addEventListener("DOMContentLoaded", function () {
+  //     document
+  //       .getElementById("selectLayer")
+  //       .addEventListener("change", function () {
+  //         let select = document.getElementById("selectAttribute");
+  //         while (select.options.length > 0) {
+  //           select.remove(0);
+  //         }
+  //         let value_layer = this.value;
 
-          fetch(
-            "http://localhost:8080/geoserver/wfs?service=WFS&request=DescribeFeatureType&version=1.1.0&typeName=" +
-              value_layer
-          )
-            .then((response) => {
-              if (!response.ok) {
-                console.error("Failed to fetch data.");
-                return;
-              }
-              return response.text();
-            })
-            .then((xmlText) => {
-              const parser = new DOMParser();
-              const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-              const select = document.getElementById("selectAttribute");
-              select.innerHTML = "";
-              select.appendChild(new Option("", "", false, true));
+  //         fetch(
+  //           "http://localhost:8080/geoserver/wfs?service=WFS&request=DescribeFeatureType&version=1.1.0&typeName=" +
+  //             value_layer
+  //         )
+  //           .then((response) => {
+  //             if (!response.ok) {
+  //               console.error("Failed to fetch data.");
+  //               return;
+  //             }
+  //             return response.text();
+  //           })
+  //           .then((xmlText) => {
+  //             const parser = new DOMParser();
+  //             const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+  //             const select = document.getElementById("selectAttribute");
+  //             select.innerHTML = "";
+  //             select.appendChild(new Option("", "", false, true));
 
-              const sequences = xmlDoc.querySelectorAll("xsd\\:sequence");
-              sequences.forEach((sequence) => {
-                sequence
-                  .querySelectorAll("xsd\\:element")
-                  .forEach((element) => {
-                    const value = element.getAttribute("name");
-                    const type = element.getAttribute("type");
-                    if (value !== "geom" && value !== "the_geom") {
-                      select.appendChild(new Option(value, type, false, false));
-                    }
-                  });
-              });
-            })
-            .catch((error) => {
-              console.error("An error occurred:", error);
-            });
-        });
+  //             const sequences = xmlDoc.querySelectorAll("xsd\\:sequence");
+  //             sequences.forEach((sequence) => {
+  //               sequence
+  //                 .querySelectorAll("xsd\\:element")
+  //                 .forEach((element) => {
+  //                   const value = element.getAttribute("name");
+  //                   const type = element.getAttribute("type");
+  //                   if (value !== "geom" && value !== "the_geom") {
+  //                     select.appendChild(new Option(value, type, false, false));
+  //                   }
+  //                 });
+  //             });
+  //           })
+  //           .catch((error) => {
+  //             console.error("An error occurred:", error);
+  //           });
+  //       });
 
-      document
-        .getElementById("selectAttribute")
-        .addEventListener("change", function () {
-          let operator = document.getElementById("selectOperator");
-          while (operator.options.length > 0) {
-            operator.remove(0);
-          }
+  //     document
+  //       .getElementById("selectAttribute")
+  //       .addEventListener("change", function () {
+  //         let operator = document.getElementById("selectOperator");
+  //         while (operator.options.length > 0) {
+  //           operator.remove(0);
+  //         }
 
-          let value_type = this.value;
-          let value_attribute = this.options[this.selectedIndex].text;
+  //         let value_type = this.value;
+  //         let value_attribute = this.options[this.selectedIndex].text;
 
-          operator.options[0] = new Option("Select operator", "");
+  //         operator.options[0] = new Option("Select operator", "");
 
-          if (
-            value_type == "xsd:short" ||
-            value_type == "xsd:int" ||
-            value_type == "xsd:double"
-          ) {
-            operator.options[1] = new Option("Greater than", ">");
-            operator.options[2] = new Option("Less than", "<");
-            operator.options[3] = new Option("Equal to", "=");
-          } else if (value_type == "xsd:string") {
-            operator.options[1] = new Option("Like", "Like");
-            operator.options[2] = new Option("Equal to", "=");
-          }
-        });
+  //         if (
+  //           value_type == "xsd:short" ||
+  //           value_type == "xsd:int" ||
+  //           value_type == "xsd:double"
+  //         ) {
+  //           operator.options[1] = new Option("Greater than", ">");
+  //           operator.options[2] = new Option("Less than", "<");
+  //           operator.options[3] = new Option("Equal to", "=");
+  //         } else if (value_type == "xsd:string") {
+  //           operator.options[1] = new Option("Like", "Like");
+  //           operator.options[2] = new Option("Equal to", "=");
+  //         }
+  //       });
 
-      document
-        .getElementById("attQryRun")
-        .addEventListener("click", function () {
-          map.set("isLoading", "YES");
+  //     document
+  //       .getElementById("attQryRun")
+  //       .addEventListener("click", function () {
+  //         map.set("isLoading", "YES");
 
-          if (featureOverlay) {
-            featureOverlay.getSource().clear();
-            map.removeLayer(featureOverlay);
-          }
-          let layer = document.getElementById("selectLayer");
-          let attribute = document.getElementById("selectAttribute");
-          let operator = document.getElementById("selectOperator");
-          let txt = document.getElementById("enterValue");
+  //         if (featureOverlay) {
+  //           featureOverlay.getSource().clear();
+  //           map.removeLayer(featureOverlay);
+  //         }
+  //         let layer = document.getElementById("selectLayer");
+  //         let attribute = document.getElementById("selectAttribute");
+  //         let operator = document.getElementById("selectOperator");
+  //         let txt = document.getElementById("enterValue");
 
-          if (layer.options.selectedIndex == 0) {
-            alert("Select Layer");
-          } else if (attribute.options.selectedIndex == -1) {
-            alert("Select Attribute");
-          } else if (operator.options.selectedIndex <= 0) {
-            alert("Select operator");
-          } else if (txt.value.length <= 0) {
-            alert("Enter value");
-          } else {
-            let value_layer = layer.options[layer.selectedIndex].value;
-            let value_attribute =
-              attribute.options[attribute.selectedIndex].text;
-            let value_operator = operator.options[operator.selectedIndex].value;
-            let value_txt = txt.value;
-            if (value_operator == "Like") {
-              value_txt = "%25" + value_txt + "%25";
-            } else {
-              value_txt = value_txt;
-            }
-            let url =
-              "http://localhost:8080/geoserver/ITE-18-WEBGIS/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" +
-              value_layer +
-              "&CQL_FILTER=" +
-              value_attribute +
-              "+" +
-              value_operator +
-              "+'" +
-              value_txt +
-              "'&outputFormat=application/json";
-            newaddGeoJsonToMap(url, map, geojson);
-            newpopulateQueryTable(url, map);
-            setTimeout(function () {
-              newaddRowHandlers(url, map);
-            }, 300);
-            map.set("isLoading", "NO");
-          }
-        });
-    });
-  }, []);
+  //         if (layer.options.selectedIndex == 0) {
+  //           alert("Select Layer");
+  //         } else if (attribute.options.selectedIndex == -1) {
+  //           alert("Select Attribute");
+  //         } else if (operator.options.selectedIndex <= 0) {
+  //           alert("Select operator");
+  //         } else if (txt.value.length <= 0) {
+  //           alert("Enter value");
+  //         } else {
+  //           let value_layer = layer.options[layer.selectedIndex].value;
+  //           let value_attribute =
+  //             attribute.options[attribute.selectedIndex].text;
+  //           let value_operator = operator.options[operator.selectedIndex].value;
+  //           let value_txt = txt.value;
+  //           if (value_operator == "Like") {
+  //             value_txt = "%25" + value_txt + "%25";
+  //           } else {
+  //             value_txt = value_txt;
+  //           }
+  //           let url =
+  //             "http://localhost:8080/geoserver/ITE-18-WEBGIS/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" +
+  //             value_layer +
+  //             "&CQL_FILTER=" +
+  //             value_attribute +
+  //             "+" +
+  //             value_operator +
+  //             "+'" +
+  //             value_txt +
+  //             "'&outputFormat=application/json";
+  //           newaddGeoJsonToMap(url, map, geojson);
+  //           newpopulateQueryTable(url, map);
+  //           setTimeout(function () {
+  //             newaddRowHandlers(url, map);
+  //           }, 300);
+  //           map.set("isLoading", "NO");
+  //         }
+  //       });
+  //   });
+  // }, []);
 
   return (
     <>
