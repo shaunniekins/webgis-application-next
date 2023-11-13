@@ -879,7 +879,7 @@ const MapComponent = () => {
               <Image
                 width={20}
                 height={20}
-                src="/../../images/controls/home.png"
+                src="/images/controls/home.png"
                 alt="Home"
                 className="brightness-0 align-middle"
               />
@@ -892,7 +892,7 @@ const MapComponent = () => {
               <Image
                 width={20}
                 height={20}
-                src="/../../images/controls/fullscreen.png"
+                src="/images/controls/fullscreen.png"
                 alt="Fullscreen"
                 className=" brightness-0 align-middle"
               />
@@ -905,7 +905,7 @@ const MapComponent = () => {
               <Image
                 width={20}
                 height={20}
-                src="/../../images/controls/featureInfo.png"
+                src="/images/controls/featureInfo.png"
                 alt="Feature Info"
                 className="brightness-0 align-middle"
               />
@@ -918,7 +918,7 @@ const MapComponent = () => {
               <Image
                 width={20}
                 height={20}
-                src="/../../images/controls/length.png"
+                src="/images/controls/length.png"
                 alt="Length"
                 className="brightness-0 align-middle"
               />
@@ -931,7 +931,7 @@ const MapComponent = () => {
               <Image
                 width={20}
                 height={20}
-                src="/../../images/controls/area.png"
+                src="/images/controls/area.png"
                 alt="Area"
                 className="brightness-0 align-middle"
               />
@@ -942,7 +942,7 @@ const MapComponent = () => {
               <Image
                 width={20}
                 height={20}
-                src="/../../images/controls/zoom-in.png"
+                src="/images/controls/zoom-in.png"
                 alt="Zoom-in"
                 className="brightness-0 align-middle"
               />
@@ -953,7 +953,7 @@ const MapComponent = () => {
               <Image
                 width={20}
                 height={20}
-                src="/../../images/controls/zoom-out.png"
+                src="/images/controls/zoom-out.png"
                 alt="Zoom-out"
                 className="brightness-0 align-middle"
               />
@@ -964,7 +964,7 @@ const MapComponent = () => {
               <Image
                 width={20}
                 height={20}
-                src="/../../images/controls/attribute-query.png"
+                src="/images/controls/attribute-query.png"
                 alt="Attribute Query"
                 className="brightness-0 align-middle"
               />
