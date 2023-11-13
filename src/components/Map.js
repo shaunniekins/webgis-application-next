@@ -42,6 +42,7 @@ import {
   newaddRowHandlers,
   newaddGeoJsonToMap,
 } from "@/tools/qryFunction";
+import Image from "next/image";
 
 const MapComponent = () => {
   const mapTargetElement = useRef(null);
@@ -875,10 +876,12 @@ const MapComponent = () => {
             <button
               onClick={() => home(map)}
               className="z-40 bg-purple-500 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100">
-              <img
-                src="../../images/controls/home.png"
+              <Image
+                width={20}
+                height={20}
+                src="/../../images/controls/home.png"
                 alt="Home"
-                className="w-5 h-5 brightness-0 align-middle"
+                className="brightness-0 align-middle"
               />
             </button>
             <button
@@ -886,10 +889,12 @@ const MapComponent = () => {
               className={`z-40 bg-purple-500 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100 ${
                 toggleFullScreen && "bg-blue-100"
               }`}>
-              <img
-                src="../../images/controls/fullscreen.png"
+              <Image
+                width={20}
+                height={20}
+                src="/../../images/controls/fullscreen.png"
                 alt="Fullscreen"
-                className="w-5 h-5 brightness-0 align-middle"
+                className=" brightness-0 align-middle"
               />
             </button>
             <button
@@ -897,10 +902,12 @@ const MapComponent = () => {
               className={`${
                 toggleFeatureInfo ? "bg-green-100" : "bg-purple-500"
               } z-40 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100`}>
-              <img
-                src="../../images/controls/featureInfo.png"
+              <Image
+                width={20}
+                height={20}
+                src="/../../images/controls/featureInfo.png"
                 alt="Feature Info"
-                className="w-5 h-5 brightness-0 align-middle"
+                className="brightness-0 align-middle"
               />
             </button>
             <button
@@ -908,10 +915,12 @@ const MapComponent = () => {
               className={`${
                 lengthFlag ? "bg-green-100" : "bg-purple-500"
               } z-40 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100`}>
-              <img
-                src="../../images/controls/length.png"
+              <Image
+                width={20}
+                height={20}
+                src="/../../images/controls/length.png"
                 alt="Length"
-                className="w-5 h-5 brightness-0 align-middle"
+                className="brightness-0 align-middle"
               />
             </button>
             <button
@@ -919,37 +928,45 @@ const MapComponent = () => {
               className={`${
                 areaFlag ? "bg-green-100" : "bg-purple-500"
               } z-40 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100`}>
-              <img
-                src="../../images/controls/area.png"
+              <Image
+                width={20}
+                height={20}
+                src="/../../images/controls/area.png"
                 alt="Area"
-                className="w-5 h-5 brightness-0 align-middle"
+                className="brightness-0 align-middle"
               />
             </button>
             <button
               onClick={() => zoomIn(map)}
               className="z-40 bg-purple-500 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100">
-              <img
-                src="../../images/controls/zoom-in.png"
+              <Image
+                width={20}
+                height={20}
+                src="/../../images/controls/zoom-in.png"
                 alt="Zoom-in"
-                className="w-5 h-5 brightness-0 align-middle"
+                className="brightness-0 align-middle"
               />
             </button>
             <button
               onClick={() => zoomOut(map)}
               className="z-40 bg-purple-500 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100">
-              <img
-                src="../../images/controls/zoom-out.png"
+              <Image
+                width={20}
+                height={20}
+                src="/../../images/controls/zoom-out.png"
                 alt="Zoom-out"
-                className="w-5 h-5 brightness-0 align-middle"
+                className="brightness-0 align-middle"
               />
             </button>
             <button
               onClick={() => toggleQry(map)}
               className="z-40 bg-purple-500 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100">
-              <img
-                src="../../images/controls/attribute-query.png"
+              <Image
+                width={20}
+                height={20}
+                src="/../../images/controls/attribute-query.png"
                 alt="Attribute Query"
-                className="w-5 h-5 brightness-0 align-middle"
+                className="brightness-0 align-middle"
               />
             </button>
           </div>

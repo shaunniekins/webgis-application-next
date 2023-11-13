@@ -13,13 +13,15 @@ const Hero = () => {
   return (
     <div
       id="hero"
-      className="min-h-[100vh] w-screen flex bg-no-repeat bg-cover items-center shadow-2xl shadow-purple-400 rounded-b-3xl"
+      className="min-h-[100vh] w-screen flex flex-col md:flex-row justify-center bg-no-repeat bg-cover items-center shadow-2xl shadow-purple-400 rounded-b-3xl px-3 md:px-0"
       style={{ backgroundImage: "url('/bg-images/balabac.jpg')" }}>
-      <div className="h-full w-full flex flex-col items-start ml-48 mt-64">
-        <div className=" py-5 pl-10 pr-16 border-l-[0.5rem] border-purple-500 bg-transparent shadow backdrop-blur-[1rem] space-y-4 rounded-lg rounded-r-3xl">
-          <h2 className=" text-2xl font-[400]">CARAGA STATE UNIVERSITY</h2>
-          <h1 className="text-[5rem] font-bold leading-[5rem]">
-            The Philippines' <br /> Land Cover
+      <div className="h-full w-full flex flex-col items-center  text-center md:text-start md:items-start md:ml-48 md:mt-64">
+        <div className=" py-5 w-full md:pl-10 md:pr-16 md:border-l-[0.5rem] md:border-purple-500 bg-transparent shadow backdrop-blur-[1rem] space-y-4 rounded-lg md:rounded-r-3xl border-t-4 border-pink-700 md:border-t-0">
+          <h2 className="text-xl md:text-2xl font-[400]">
+            CARAGA STATE UNIVERSITY
+          </h2>
+          <h1 className="text-3xl md:text-[5rem] font-bold md:leading-[5rem]">
+            The Philippines&apos; <br /> Land Cover
           </h1>
           <div className=" leading-tight">
             <p className="font-[600]">A WEB-GIS Project of ITE-18 GROUP 1</p>
@@ -30,7 +32,7 @@ const Hero = () => {
           </div>
         </div>
       </div>
-      <p className="w-full pr-3 pb-3 text-white text-xs self-end items-end content-end justify-end place-self-end justify-self-end text-end">
+      <p className="w-full pr-3 pb-3 text-white text-xs self-end items-end content-end justify-end place-self-end justify-self-end text-end hidden md:flex">
         Photo by: {""}
         <a
           href="
@@ -44,8 +46,8 @@ const Hero = () => {
 };
 
 const LandCoverCard = ({ title, description }) => (
-  <li className="rounded-2xl rounded-t-md hover:scale-110 transition delay-75 duration-500 ease-in-out border-t-4 border-pink-700 p-6 bg-white shadow-lg backdrop-blur-[1rem] text-justify">
-    <h2 className="font-bold">{title}</h2>
+  <li className="rounded-2xl rounded-t-md hover:scale-110 transition delay-75 duration-500 ease-in-out border-t-4 border-pink-700 p-6 bg-white shadow-lg backdrop-blur-[1rem] md:text-justify">
+    <h2 className="text-sm md:text-base font-bold">{title}</h2>
     {/* <div className="hidden-description">
       <p className="">{description}</p>
     </div> */}
@@ -67,7 +69,7 @@ const Content = () => {
         cultural, and economic richness.
       </p>
       <div className="flex flex-col space-y-4">
-        <ul className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <ul className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-6">
           {landCoverData.map((item, index) => (
             <LandCoverCard
               key={index}
@@ -97,12 +99,12 @@ const Content = () => {
           tapestry of natural beauty and human influence. This archipelagic
           nation, comprising 7,641 islands, is located in Southeast Asia and
           showcases an astonishing array of ecosystems, making it a unique and
-          vibrant part of the world's natural heritage.
+          vibrant part of the world&apos;s natural heritage.
           <br />
           <br />
-          One of the most prominent features of the Philippines' land cover is
-          its lush tropical rainforests, which occupy a significant portion of
-          its total land area. These rainforests are teeming with a rich
+          One of the most prominent features of the Philippines&apos; land cover
+          is its lush tropical rainforests, which occupy a significant portion
+          of its total land area. These rainforests are teeming with a rich
           diversity of flora and fauna, many of which are endemic to the region.
           The canopies of these forests are a mosaic of different shades of
           green, punctuated by a wide variety of trees, vines, and epiphytes,
@@ -112,18 +114,18 @@ const Content = () => {
           The country is also characterized by its extensive coastal areas, with
           picturesque beaches, coral reefs, and mangrove forests. The pristine
           white sand beaches and crystal-clear waters are not only a source of
-          natural beauty but also a vital part of the Philippines' tourism
+          natural beauty but also a vital part of the Philippines&apos; tourism
           industry. Coral reefs harbor an extraordinary wealth of marine life,
           making them essential for biodiversity conservation.
           <br />
           <br />
-          Mountainous terrain plays a significant role in the Philippines' land
-          cover as well. The country is home to several major mountain ranges,
-          including the Cordillera Central and the Sierra Madre. These mountains
-          are often covered in lush green forests, adding to the country's
-          scenic charm. They also influence the climate and hydrology of the
-          region, serving as the source of numerous rivers and watersheds that
-          are essential for agriculture and water supply.
+          Mountainous terrain plays a significant role in the Philippines&apos;
+          land cover as well. The country is home to several major mountain
+          ranges, including the Cordillera Central and the Sierra Madre. These
+          mountains are often covered in lush green forests, adding to the
+          country&apos;s scenic charm. They also influence the climate and
+          hydrology of the region, serving as the source of numerous rivers and
+          watersheds that are essential for agriculture and water supply.
           <br />
           <br />
           Agricultural land covers a substantial portion of the Philippines,

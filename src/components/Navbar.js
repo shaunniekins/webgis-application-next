@@ -35,9 +35,9 @@ const Navbar = () => {
   return (
     <>
       <div className="w-full z-50 flex font-Montserrat select-none my-5 ">
-        <div className="w-full flex justify-between items-center px-5 font-Montserrat select-none">
+        <div className="w-full flex justify-center md:justify-between items-center px-5 font-Montserrat select-none">
           {/* <Image src="/logo.jpeg" width={60} height={60} alt="Logo" /> */}
-          <div className="flex items-center justify-center bg-purple-900 text-white rounded-full py-2 px-4 shadow-lg">
+          <div className="hidden md:flex items-center justify-center bg-purple-900 text-white rounded-full py-2 px-4 shadow-lg">
             <h1 className="text-2xl font-bold">GROUP 1</h1>
           </div>
           <div className="space-x-3">
