@@ -1,36 +1,90 @@
 "use client";
-import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
-const Navbar = () => {
-  const pathname = usePathname();
-  const router = useRouter();
+const NavItem = ({ label, active, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`hover:scale-110  transition delay-75 duration-500 ease-in-out text-[18px] w-24 py-2 rounded-full text-white ${
+      active
+        ? "bg-purple-900 text-white border-t-4 border-pink-700"
+        : "bg-purple-600 border-t-4 border-pink-700 text-gray-600 hover:bg-green-100 hover:text-black"
+    }`}>
+    <p>{label}</p>
+  </button>
+);
 
-  const buttons = [
-    {
-      label: "Home",
-      action: () => {
-        router.push("/home");
-      },
-      path: "/home",
-    },
-    {
-      label: "About",
-      action: () => {
-        router.push("/about");
-      },
-      path: "/about",
-    },
-    {
-      label: "Map",
-      action: () => {
-        router.push("/map");
-      },
-      path: "/map",
-    },
-  ];
+const Navbar = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isHero, setIsHero] = useState(true);
+  const [isAbout, setIsAbout] = useState(false);
+  const [isMap, setIsMap] = useState(false);
+
+  const [activeSection, setActiveSection] = useState("hero");
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleScrollToSection = (sectionId) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      window.scrollTo({
+        top: section.offsetTop,
+        behavior: "smooth",
+      });
+    }
+
+    if (sectionId === "hero") {
+      setIsHero(true);
+      setIsAbout(false);
+      setIsMap(false);
+      console.log("hero");
+    }
+
+    if (sectionId === "about") {
+      setIsHero(false);
+      setIsAbout(true);
+      setIsMap(false);
+      console.log("about");
+    }
+
+    if (sectionId === "map") {
+      setIsHero(false);
+      setIsAbout(false);
+      setIsMap(true);
+    }
+
+    toggleMobileMenu();
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const heroSection = document.getElementById("hero");
+      const infoSection = document.getElementById("infocard");
+      const aboutSection = document.getElementById("about");
+      const mapSection = document.getElementById("map");
+
+      if (scrollY >= heroSection.offsetTop && scrollY < infoSection.offsetTop) {
+        setActiveSection("hero");
+      } else if (
+        scrollY >= infoSection.offsetTop &&
+        scrollY < mapSection.offsetTop
+      ) {
+        setActiveSection("about");
+      } else if (scrollY >= aboutSection.offsetTop) {
+        setActiveSection("map");
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   return (
     <>
@@ -41,18 +95,21 @@ const Navbar = () => {
             <h1 className="text-2xl font-bold">GROUP 1</h1>
           </div>
           <div className="space-x-3">
-            {buttons.map((button, index) => (
-              <button
-                className={`hover:scale-110 transition delay-75 duration-500 ease-in-out text-[18px] w-24 py-2 rounded-full text-white ${
-                  pathname === button.path
-                    ? "bg-purple-900 text-white border-t-4 border-pink-700"
-                    : "bg-purple-600 border-t-4 border-pink-700 text-gray-600 hover:bg-green-100 hover:text-black"
-                }`}
-                key={index}
-                onClick={button.action}>
-                {button.label}
-              </button>
-            ))}
+            <NavItem
+              label="Home"
+              active={activeSection === "hero"}
+              onClick={() => handleScrollToSection("hero")}
+            />
+            <NavItem
+              label="About"
+              active={activeSection === "about"}
+              onClick={() => handleScrollToSection("about")}
+            />
+            <NavItem
+              label="Map"
+              active={activeSection === "map"}
+              onClick={() => handleScrollToSection("map")}
+            />
           </div>
         </div>
       </div>

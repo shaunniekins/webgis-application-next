@@ -866,10 +866,17 @@ const MapComponent = () => {
   // }, []);
 
   return (
-    <>
+    <div
+      id="map"
+      className="py-20 h-[100dvh] w-full flex flex-col justify-around content-center items-center text-white">
+      <div className="mb-10 text-center">
+        <h1 className="text-4xl font-bold mb-5">The Map</h1>
+        <p className="">
+          Different colors represent different type of landcover.
+        </p>
+      </div>
       <div
-        id="map"
-        className="w-full h-[88dvh] overflow-hidden relative rounded-lg shadow-purple-400 shadow-2xl border-y-4 border-pink-700 p-2"
+        className="w-full h-full overflow-hidden relative rounded-lg shadow-purple-400 shadow-2xl border-y-4 border-pink-700 p-2"
         ref={mapTargetElement}>
         <div className="flex flex-col absolute z-50 mt-3 ml-2 gap-2">
           <div className="flex gap-1">
@@ -984,10 +991,12 @@ const MapComponent = () => {
               ))}
             </div>
           )}
-          <div></div>
+          {/* <div className="bg-purple-500 opacity-80 text-sm p-2 rounded-lg shadow backdrop-blur-[1rem] text-left text-white">
+            hey
+          </div> */}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 export default MapComponent;
