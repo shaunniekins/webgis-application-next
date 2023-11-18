@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<StyledLayerDescriptor
+  version="1.0.0"
+  xmlns="http://www.opengis.net/sld"
+  xmlns:ogc="http://www.opengis.net/ogc"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.opengis.net/sld http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd">
+  <NamedLayer>
+    <Name>LandCoverStyle</Name>
+    <UserStyle>
+      <title>Land Cover Styles</title>
+      <FeatureTypeStyle>
+        <!-- Rule for Built-up Area -->
+        <Rule>
+          <Name>Built-up Area</Name>
+          <title>Built-up Area</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>B</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#FF5733</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Coral Reef -->
+        <Rule>
+          <Name>Coral Reef</Name>
+          <title>Coral Reef</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>C</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#00BFFF</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Cultivated Area mixed with brushland/grassland -->
+        <Rule>
+          <Name>Cultivated Area</Name>
+          <title>Cultivated Area mixed with brushland/grassland</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Ec</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#32CD32</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Grassland, grass covering > 70 percent -->
+        <Rule>
+          <Name>Grassland</Name>
+          <title>Grassland, grass covering (greater than) 70 percent</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Eg</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#228B22</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Closed canopy, mature trees covering > 50 percent -->
+        <Rule>
+          <Name>Closed canopy</Name>
+          <title>
+            Closed canopy, mature trees covering (greater than) 50 percent
+          </title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Fdc</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#8B0000</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Open canopy, mature trees covering < 50 percent -->
+        <Rule>
+          <Name>Open canopy</Name>
+          <title>
+            Open canopy, mature trees covering (greater than) 50 percent
+          </title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Fdo</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#800080</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Mangrove vegetation -->
+        <Rule>
+          <Name>Mangrove vegetation</Name>
+          <title>Mangrove vegetation</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Fm</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#8B4513</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Pine Forest -->
+        <Rule>
+          <Name>Pine Forest</Name>
+          <title>Pine Forest</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Fp</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#556B2F</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Mossy forest -->
+        <Rule>
+          <Name>Mossy forest</Name>
+          <title>Mossy forest</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Fy</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#2E8B57</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Arable land, crops mainly cereals and sugar -->
+        <Rule>
+          <Name>Arable land</Name>
+          <title>Arable land, crops mainly cereals and sugar</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Ic</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#FFD700</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Fishponds derived from mangrove -->
+        <Rule>
+          <Name>Fishponds</Name>
+          <title>Fishponds derived from mangrove</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Ifm</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#6A5ACD</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Other fishponds -->
+        <Rule>
+          <Name>Other fishponds</Name>
+          <title>Other fishponds</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Ifo</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#4169E1</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Crop land mixed with coconut plantation -->
+        <Rule>
+          <Name>Crop land mixed with coconut plantation</Name>
+          <title>Crop land mixed with coconut plantation</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Imc</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#FFA500</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Crop land mixed with other plantation -->
+        <Rule>
+          <Name>Crop land mixed with other plantation</Name>
+          <title>Crop land mixed with other plantation</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Imo</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#FF4500</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Coconut plantations -->
+        <Rule>
+          <Name>Coconut plantations</Name>
+          <title>Coconut plantations</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Ipc</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#DEB887</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Other plantations -->
+        <Rule>
+          <Name>Other plantations</Name>
+          <title>Other plantations</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Ipo</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#DAA520</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Lake -->
+        <Rule>
+          <Name>Lake</Name>
+          <title>Lake</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>L</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#1E90FF</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Marshy area and swamp -->
+        <Rule>
+          <Name>Marshy area and swamp</Name>
+          <title>Marshy area and swamp</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>M</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#FFFF00</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Eroded area -->
+        <Rule>
+          <Name>Eroded area</Name>
+          <title>Eroded area</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Ne</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#CD5C5C</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Other barren land -->
+        <Rule>
+          <Name>Other barren land</Name>
+          <title>Other barren land</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>No</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#A0522D</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Quarry -->
+        <Rule>
+          <Name>Quarry</Name>
+          <title>Quarry</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Nq</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#800000</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Riverbeds -->
+        <Rule>
+          <Name>Riverbeds</Name>
+          <title>Riverbeds</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>Nr</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#00CED1</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Siltation pattern in lake -->
+        <Rule>
+          <Name>Siltation pattern in lake</Name>
+          <title>Siltation pattern in lake</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>S</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#00FFFF</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Unclassified -->
+        <Rule>
+          <Name>Unclassified</Name>
+          <title>Unclassified</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>U</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#A9A9A9</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
+        <!-- Rule for Unclassified -->
+        <Rule>
+          <Name>Unclassified</Name>
+          <title>Unclassified</title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>CODE</ogc:PropertyName>
+              <ogc:Literal>U</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#A9A9A9</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke">#000000</CssParameter>
+              <CssParameter name="stroke-width">0.5</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+      </FeatureTypeStyle>
+    </UserStyle>
+  </NamedLayer>
+</StyledLayerDescriptor>

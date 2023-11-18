@@ -1,10 +1,12 @@
 "use client";
 
+// React imports
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
+// OpenLayers imports
 import "ol/ol.css";
 import "ol-layerswitcher/dist/ol-layerswitcher.css";
-
 import Map from "ol/Map";
 import View from "ol/View";
 import ImageWMS from "ol/source/ImageWMS";
@@ -12,50 +14,59 @@ import ImageLayer from "ol/layer/Image";
 import TileLayer from "ol/layer/Tile";
 import OSM from "ol/source/OSM.js";
 import Overlay from "ol/Overlay";
-import { Attribution, ScaleLine } from "ol/control";
+import { ScaleLine } from "ol/control";
 import { fromLonLat } from "ol/proj";
 import BingMaps from "ol/source/BingMaps.js";
 import LayerGroup from "ol/layer/Group";
 import MousePosition from "ol/control/MousePosition";
 import { format } from "ol/coordinate";
 import LayerSwitcher from "ol-layerswitcher";
-import Geometry from "ol/geom";
-// import GeometryType from "ol/geom/GeometryType";
-import LineString from "ol/geom";
-import Polygon from "ol/geom";
 import Style from "ol/style/Style";
 import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
-import Circle from "ol/geom";
 import Draw from "ol/interaction/Draw.js";
-import { getLength, getArea } from "ol/sphere";
 import CircleStyle from "ol/style/Circle.js";
-import Navbar from "./Navbar";
-
 import VectorLayer from "ol/layer/Vector.js";
 import VectorSource from "ol/source/Vector.js";
+import { transformExtent } from "ol/proj";
+import GeoJSON from "ol/format/GeoJSON";
 
+// Local imports
 import { formatLength, formatArea } from "@/tools/formatFunction";
 
-import {
-  newpopulateQueryTable,
-  newaddRowHandlers,
-  newaddGeoJsonToMap,
-} from "@/tools/qryFunction";
-import Image from "next/image";
-
 const MapComponent = () => {
+  // Refs
   const mapTargetElement = useRef(null);
+
+  // Map state
   const [map, setMap] = useState();
-  const [propsValue, setPropsValue] = useState([]);
+  const [mapVal, setMapVal] = useState(null);
+
+  // Toggle states
   const [toggleFullScreen, setToggleFullScreen] = useState(false);
   const [toggleFeatureInfo, setToggleFeatureInfo] = useState(false);
+  const [toggleQuery, setToggleQuery] = useState(false);
+
+  // Measurement states
   const [lengthFlag, setLengthFlag] = useState(false);
   const [areaFlag, setAreaFlag] = useState(false);
   const [draw, setDraw] = useState(null);
 
-  const [mapVal, setMapVal] = useState(null);
+  // Query states
+  const [currentQryLayer, setCurrentQryLayer] = useState(null);
+  const [propsValue, setPropsValue] = useState([]);
 
+  // Region data states
+  const [regionsData, setRegionsData] = useState([]);
+  const [provincesData, setProvincesData] = useState([]);
+  const [municipalitiesData, setMunicipalitiesData] = useState([]);
+
+  // Selected region states
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedMunicipality, setSelectedMunicipality] = useState("");
+
+  // Coordinates
   const butuanCityCoords = fromLonLat([125.568014, 8.8904]);
   const philippinesCoords = fromLonLat([122.563, 11.803]);
 
@@ -220,6 +231,11 @@ const MapComponent = () => {
       };
 
       const handlePopupClick = async (layers, e) => {
+        if (!e || !e.coordinate) {
+          console.error("Invalid event:", e);
+          return;
+        }
+
         const resolution = mapView.getResolution();
         const projection = mapView.getProjection();
 
@@ -242,6 +258,7 @@ const MapComponent = () => {
           (acc, result) => ({ ...acc, ...result }),
           {}
         );
+
         setPropsValue(props);
       };
 
@@ -249,12 +266,11 @@ const MapComponent = () => {
         handlePopupClick(
           [
             { layer: add_land_cover_ph, propertyName: "DESCRIPT,AREA" },
-            { layer: add_butuan, propertyName: "barangay,class,shape_area" },
             { layer: add_municipalities_ph, propertyName: "Mun_Name,Pro_Name" },
+            { layer: add_butuan, propertyName: "barangay,class,shape_area" },
           ],
           e
         );
-        // console.log("toggleFeatureInfo", toggleFeatureInfo);
       });
 
       return () => map.setTarget("");
@@ -262,6 +278,228 @@ const MapComponent = () => {
       console.error("Error creating map:", error);
     }
   }, []);
+
+  const fetchRegionsData = async () => {
+    const url = "http://localhost:8080/geoserver/ITE-18-WEBGIS/wfs";
+
+    const params = {
+      service: "WFS",
+      version: "1.0.0",
+      request: "GetFeature",
+      typeName: "ITE-18-WEBGIS:Municipalities",
+      propertyName: "Reg_Name",
+      outputFormat: "application/json",
+    };
+
+    const query = new URLSearchParams(params).toString();
+    const fullUrl = `${url}?${query}`;
+
+    try {
+      const response = await fetch(fullUrl);
+      const data = await response.json();
+      const fetchedRegions = data.features.map(
+        (feature) => feature.properties.Reg_Name
+      );
+      setRegionsData([...new Set(fetchedRegions)]);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const fetchProvincesData = async (selectedRegion) => {
+    const url = "http://localhost:8080/geoserver/ITE-18-WEBGIS/wfs";
+
+    const params = {
+      service: "WFS",
+      version: "1.0.0",
+      request: "GetFeature",
+      typeName: "ITE-18-WEBGIS:Municipalities",
+      propertyName: "Pro_Name",
+      outputFormat: "application/json",
+      CQL_FILTER: `Reg_Name='${selectedRegion}'`,
+    };
+
+    const query = new URLSearchParams(params).toString();
+    const fullUrl = `${url}?${query}`;
+
+    try {
+      const response = await fetch(fullUrl);
+
+      const data = await response.json();
+      const fetchedProvinces = data.features.map(
+        (feature) => feature.properties.Pro_Name
+      );
+      setProvincesData([...new Set(fetchedProvinces)]);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const fetchMunicipalitiesData = async (selectedProvince) => {
+    const url = "http://localhost:8080/geoserver/ITE-18-WEBGIS/wfs";
+
+    const params = {
+      service: "WFS",
+      version: "1.0.0",
+      request: "GetFeature",
+      typeName: "ITE-18-WEBGIS:Municipalities",
+      propertyName: "Mun_Name",
+      outputFormat: "application/json",
+      CQL_FILTER: `Pro_Name='${selectedProvince}'`,
+    };
+
+    const query = new URLSearchParams(params).toString();
+    const fullUrl = `${url}?${query}`;
+
+    try {
+      const response = await fetch(fullUrl);
+
+      const data = await response.json();
+      const fetchedMunicipalites = data.features.map(
+        (feature) => feature.properties.Mun_Name
+      );
+      setMunicipalitiesData([...new Set(fetchedMunicipalites)]);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRegionsData();
+  }, []);
+
+  useEffect(() => {
+    if (selectedRegion) {
+      fetchProvincesData(selectedRegion);
+      setSelectedProvince(""); // Reset selected province when region changes
+      setSelectedMunicipality(""); // Reset selected municipality when region changes
+    }
+  }, [selectedRegion]);
+
+  useEffect(() => {
+    if (selectedProvince) {
+      fetchMunicipalitiesData(selectedProvince);
+      setSelectedMunicipality(""); // Reset selected municipality when province changes
+    }
+  }, [selectedProvince]);
+
+  const getMunicipalityCoordinates = async (map) => {
+    const url = "http://localhost:8080/geoserver/ITE-18-WEBGIS/wfs";
+
+    const params = {
+      service: "WFS",
+      version: "1.0.0",
+      request: "GetFeature",
+      propertyName: "the_geom",
+      typeName: "ITE-18-WEBGIS:Municipalities",
+      outputFormat: "application/json",
+      CQL_FILTER: `Mun_Name='${selectedMunicipality}'`,
+    };
+
+    const query = new URLSearchParams(params).toString();
+    const fullUrl = `${url}?${query}`;
+
+    const response = await fetch(fullUrl);
+    const data = await response.json();
+
+    try {
+      const municipality = data.features[0];
+      const geometry = municipality.geometry;
+
+      const format = new GeoJSON();
+      const geomObj = format.readGeometry(geometry);
+      const bbox = geomObj.getExtent();
+      const extent = transformExtent(
+        bbox,
+        "EPSG:4326",
+        map.getView().getProjection()
+      );
+
+      var pPath = {
+        type: "Polygon",
+        coordinates: geometry.coordinates[0],
+      };
+
+      var fPath = {
+        type: "Feature",
+        geometry: pPath,
+      };
+
+      var svPath = new VectorSource({
+        features: new GeoJSON().readFeatures(fPath, {
+          featureProjection: map.getView().getProjection(),
+        }),
+      });
+
+      var lvPath = new VectorLayer({
+        source: svPath,
+        style: new Style({
+          fill: new Fill({
+            color: "rgba(0, 0, 0, 0.2)",
+          }),
+          stroke: new Stroke({
+            color: "#000000",
+            width: 8,
+          }),
+        }),
+      });
+
+      if (currentQryLayer) {
+        var layers = map.getLayers().getArray();
+        for (var i = layers.length - 1; i >= 0; i--) {
+          if (layers[i] === currentQryLayer) {
+            map.removeLayer(layers[i]);
+            break;
+          }
+        }
+      }
+
+      map.addLayer(lvPath);
+      setCurrentQryLayer(lvPath);
+
+      map.renderSync();
+
+      map.getView().fit(extent, { duration: 1590, maxZoom: 11 });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const toggleOffQry = () => {
+    if (!toggleQuery) {
+      setSelectedRegion("");
+      setSelectedProvince("");
+      setSelectedMunicipality("");
+
+      if (currentQryLayer) {
+        var layers = map.getLayers().getArray();
+        for (var i = layers.length - 1; i >= 0; i--) {
+          if (layers[i] === currentQryLayer) {
+            map.removeLayer(layers[i]);
+            break;
+          }
+        }
+      }
+    } else {
+      setLengthFlag(false);
+      setToggleFeatureInfo(false);
+      setAreaFlag(false);
+
+      setPropsValue([]);
+      if (draw) {
+        map.removeInteraction(draw);
+        setDraw(null);
+      }
+      const elements = document.getElementsByClassName(
+        "ol-tooltip ol-tooltip-static"
+      );
+      while (elements.length > 0) elements[0].remove();
+    }
+  };
+
+  useEffect(() => {
+    toggleOffQry();
+  }, [toggleQuery]);
 
   const home = (map) => {
     const view = map.getView();
@@ -324,6 +562,17 @@ const MapComponent = () => {
     setLengthFlag(false);
     setAreaFlag(false);
     setPropsValue([]);
+    setToggleQuery(false);
+
+    if (currentQryLayer) {
+      var layers = map.getLayers().getArray();
+      for (var i = layers.length - 1; i >= 0; i--) {
+        if (layers[i] === currentQryLayer) {
+          map.removeLayer(layers[i]);
+          break;
+        }
+      }
+    }
     if (draw) {
       map.removeInteraction(draw);
       setDraw(null);
@@ -348,7 +597,19 @@ const MapComponent = () => {
     } else {
       setLengthFlag(true);
       setToggleFeatureInfo(false);
-      setAreaFlag(false); // Deactivate the area measurement
+      setAreaFlag(false);
+      setToggleQuery(false);
+
+      if (currentQryLayer) {
+        var layers = map.getLayers().getArray();
+        for (var i = layers.length - 1; i >= 0; i--) {
+          if (layers[i] === currentQryLayer) {
+            map.removeLayer(layers[i]);
+            break;
+          }
+        }
+      }
+
       if (draw) {
         map.removeInteraction(draw);
         setDraw(null);
@@ -376,7 +637,19 @@ const MapComponent = () => {
     } else {
       setAreaFlag(true);
       setToggleFeatureInfo(false);
-      setLengthFlag(false); // Deactivate the length measurement
+      setLengthFlag(false);
+      setToggleQuery(false);
+
+      if (currentQryLayer) {
+        var layers = map.getLayers().getArray();
+        for (var i = layers.length - 1; i >= 0; i--) {
+          if (layers[i] === currentQryLayer) {
+            map.removeLayer(layers[i]);
+            break;
+          }
+        }
+      }
+
       if (draw) {
         map.removeInteraction(draw);
         setDraw(null);
@@ -541,337 +814,13 @@ const MapComponent = () => {
     view.setZoom(newZoom);
   };
 
-  let geojson;
-  let featureOverlay;
-  let qryFlag = false;
-  const toggleQry = (map) => {
-    qryFlag = !qryFlag;
-
-    if (qryFlag) {
-      if (geojson) {
-        geojson.getSource().clear();
-        map.removeLayer(geojson);
-      }
-      if (featureOverlay) {
-        featureOverlay.getSource.clear();
-        map.removeLayer(featureOverlay);
-      }
-
-      // document.getElementById("attQueryDiv").style.display = "block";
-      document.getElementById("attQueryDiv");
-
-      let bolIdentify = false;
-
-      addMapLayerList();
-    } else {
-      // document.getElementById("attQueryDiv").style.display = "none";
-      // document.getElementById("attListDiv").style.display = "none";
-      document.getElementById("attQueryDiv");
-      document.getElementById("attListDiv");
-
-      if (geojson) {
-        geojson.getSource().clear();
-        map.removeLayer(geojson);
-      }
-      if (featureOverlay) {
-        featureOverlay.getSource.clear();
-        map.removeLayer(featureOverlay);
-      }
-    }
-  };
-
-  const addMapLayerList = () => {
-    document.addEventListener("DOMContentLoaded", function () {
-      fetch(
-        "http://localhost:8080/geoserver/ITE-18-WEBGIS/wfs?request=GetCapabilities"
-      )
-        .then((response) => response.text())
-        .then((str) => new window.DOMParser().parseFromString(str, "text/xml"))
-        .then((data) => {
-          console.log("data", data);
-          let select = document.getElementById("selectLayer");
-          select.innerHTML += "<option class='ddindent' value=''></option>";
-          let featureTypes = data.getElementsByTagName("FeatureType");
-          for (let featureType of featureTypes) {
-            let names = featureType.getElementsByTagName("Name");
-            for (let name of names) {
-              select.innerHTML +=
-                "<option class='ddindent' value='" +
-                name.textContent +
-                "'>" +
-                name.textContent +
-                "</option>";
-            }
-          }
-        });
-    });
-  };
-
-  // useEffect(() => {
-  //   const initializeMapLayerSelection = (map) => {
-  //     document
-  //       .getElementById("selectLayer")
-  //       .addEventListener("change", function () {
-  //         let select = document.getElementById("selectAttribute");
-  //         while (select.options.length > 0) {
-  //           select.remove(0);
-  //         }
-  //         let value_layer = this.value;
-
-  //         fetch(
-  //           "http://localhost:8080/geoserver/wfs?service=WFS&request=DescribeFeatureType&version=1.1.0&typeName=" +
-  //             value_layer
-  //         )
-  //           .then((response) => {
-  //             if (!response.ok) {
-  //               console.error("Failed to fetch data.");
-  //               return;
-  //             }
-  //             return response.text();
-  //           })
-  //           .then((xmlText) => {
-  //             const parser = new DOMParser();
-  //             const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-  //             const select = document.getElementById("selectAttribute");
-  //             select.innerHTML = "";
-  //             select.appendChild(new Option("", "", false, true));
-
-  //             const sequences = xmlDoc.querySelectorAll("xsd\\:sequence");
-  //             sequences.forEach((sequence) => {
-  //               sequence
-  //                 .querySelectorAll("xsd\\:element")
-  //                 .forEach((element) => {
-  //                   const value = element.getAttribute("name");
-  //                   const type = element.getAttribute("type");
-  //                   if (value !== "geom" && value !== "the_geom") {
-  //                     select.appendChild(new Option(value, type, false, false));
-  //                   }
-  //                 });
-  //             });
-  //           })
-  //           .catch((error) => {
-  //             console.error("An error occurred:", error);
-  //           });
-  //       });
-
-  //     document
-  //       .getElementById("selectAttribute")
-  //       .addEventListener("change", function () {
-  //         let operator = document.getElementById("selectOperator");
-  //         while (operator.options.length > 0) {
-  //           operator.remove(0);
-  //         }
-
-  //         let value_type = this.value;
-  //         let value_attribute = this.options[this.selectedIndex].text;
-
-  //         operator.options[0] = new Option("Select operator", "");
-
-  //         if (
-  //           value_type == "xsd:short" ||
-  //           value_type == "xsd:int" ||
-  //           value_type == "xsd:double"
-  //         ) {
-  //           operator.options[1] = new Option("Greater than", ">");
-  //           operator.options[2] = new Option("Less than", "<");
-  //           operator.options[3] = new Option("Equal to", "=");
-  //         } else if (value_type == "xsd:string") {
-  //           operator.options[1] = new Option("Like", "Like");
-  //           operator.options[2] = new Option("Equal to", "=");
-  //         }
-  //       });
-
-  //     document
-  //       .getElementById("attQryRun")
-  //       .addEventListener("click", function () {
-  //         map.set("isLoading", "YES");
-
-  //         if (featureOverlay) {
-  //           featureOverlay.getSource().clear();
-  //           map.removeLayer(featureOverlay);
-  //         }
-  //         let layer = document.getElementById("selectLayer");
-  //         let attribute = document.getElementById("selectAttribute");
-  //         let operator = document.getElementById("selectOperator");
-  //         let txt = document.getElementById("enterValue");
-
-  //         if (layer.options.selectedIndex == 0) {
-  //           alert("Select Layer");
-  //         } else if (attribute.options.selectedIndex == -1) {
-  //           alert("Select Attribute");
-  //         } else if (operator.options.selectedIndex <= 0) {
-  //           alert("Select operator");
-  //         } else if (txt.value.length <= 0) {
-  //           alert("Enter value");
-  //         } else {
-  //           let value_layer = layer.options[layer.selectedIndex].value;
-  //           let value_attribute =
-  //             attribute.options[attribute.selectedIndex].text;
-  //           let value_operator = operator.options[operator.selectedIndex].value;
-  //           let value_txt = txt.value;
-  //           if (value_operator == "Like") {
-  //             value_txt = "%25" + value_txt + "%25";
-  //           } else {
-  //             value_txt = value_txt;
-  //           }
-  //           let url =
-  //             "http://localhost:8080/geoserver/ITE-18-WEBGIS/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" +
-  //             value_layer +
-  //             "&CQL_FILTER=" +
-  //             value_attribute +
-  //             "+" +
-  //             value_operator +
-  //             "+'" +
-  //             value_txt +
-  //             "'&outputFormat=application/json";
-  //           newaddGeoJsonToMap(url, map, geojson);
-  //           newpopulateQueryTable(url, map);
-  //           setTimeout(function () {
-  //             newaddRowHandlers(url, map);
-  //           }, 300);
-  //           map.set("isLoading", "NO");
-  //         }
-  //       });
-  //   };
-  //   // Call the function to initialize the behavior
-  //   initializeMapLayerSelection(map);
-  // }, []);
-
-  // useEffect(() => {
-  //   document.addEventListener("DOMContentLoaded", function () {
-  //     document
-  //       .getElementById("selectLayer")
-  //       .addEventListener("change", function () {
-  //         let select = document.getElementById("selectAttribute");
-  //         while (select.options.length > 0) {
-  //           select.remove(0);
-  //         }
-  //         let value_layer = this.value;
-
-  //         fetch(
-  //           "http://localhost:8080/geoserver/wfs?service=WFS&request=DescribeFeatureType&version=1.1.0&typeName=" +
-  //             value_layer
-  //         )
-  //           .then((response) => {
-  //             if (!response.ok) {
-  //               console.error("Failed to fetch data.");
-  //               return;
-  //             }
-  //             return response.text();
-  //           })
-  //           .then((xmlText) => {
-  //             const parser = new DOMParser();
-  //             const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-  //             const select = document.getElementById("selectAttribute");
-  //             select.innerHTML = "";
-  //             select.appendChild(new Option("", "", false, true));
-
-  //             const sequences = xmlDoc.querySelectorAll("xsd\\:sequence");
-  //             sequences.forEach((sequence) => {
-  //               sequence
-  //                 .querySelectorAll("xsd\\:element")
-  //                 .forEach((element) => {
-  //                   const value = element.getAttribute("name");
-  //                   const type = element.getAttribute("type");
-  //                   if (value !== "geom" && value !== "the_geom") {
-  //                     select.appendChild(new Option(value, type, false, false));
-  //                   }
-  //                 });
-  //             });
-  //           })
-  //           .catch((error) => {
-  //             console.error("An error occurred:", error);
-  //           });
-  //       });
-
-  //     document
-  //       .getElementById("selectAttribute")
-  //       .addEventListener("change", function () {
-  //         let operator = document.getElementById("selectOperator");
-  //         while (operator.options.length > 0) {
-  //           operator.remove(0);
-  //         }
-
-  //         let value_type = this.value;
-  //         let value_attribute = this.options[this.selectedIndex].text;
-
-  //         operator.options[0] = new Option("Select operator", "");
-
-  //         if (
-  //           value_type == "xsd:short" ||
-  //           value_type == "xsd:int" ||
-  //           value_type == "xsd:double"
-  //         ) {
-  //           operator.options[1] = new Option("Greater than", ">");
-  //           operator.options[2] = new Option("Less than", "<");
-  //           operator.options[3] = new Option("Equal to", "=");
-  //         } else if (value_type == "xsd:string") {
-  //           operator.options[1] = new Option("Like", "Like");
-  //           operator.options[2] = new Option("Equal to", "=");
-  //         }
-  //       });
-
-  //     document
-  //       .getElementById("attQryRun")
-  //       .addEventListener("click", function () {
-  //         map.set("isLoading", "YES");
-
-  //         if (featureOverlay) {
-  //           featureOverlay.getSource().clear();
-  //           map.removeLayer(featureOverlay);
-  //         }
-  //         let layer = document.getElementById("selectLayer");
-  //         let attribute = document.getElementById("selectAttribute");
-  //         let operator = document.getElementById("selectOperator");
-  //         let txt = document.getElementById("enterValue");
-
-  //         if (layer.options.selectedIndex == 0) {
-  //           alert("Select Layer");
-  //         } else if (attribute.options.selectedIndex == -1) {
-  //           alert("Select Attribute");
-  //         } else if (operator.options.selectedIndex <= 0) {
-  //           alert("Select operator");
-  //         } else if (txt.value.length <= 0) {
-  //           alert("Enter value");
-  //         } else {
-  //           let value_layer = layer.options[layer.selectedIndex].value;
-  //           let value_attribute =
-  //             attribute.options[attribute.selectedIndex].text;
-  //           let value_operator = operator.options[operator.selectedIndex].value;
-  //           let value_txt = txt.value;
-  //           if (value_operator == "Like") {
-  //             value_txt = "%25" + value_txt + "%25";
-  //           } else {
-  //             value_txt = value_txt;
-  //           }
-  //           let url =
-  //             "http://localhost:8080/geoserver/ITE-18-WEBGIS/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" +
-  //             value_layer +
-  //             "&CQL_FILTER=" +
-  //             value_attribute +
-  //             "+" +
-  //             value_operator +
-  //             "+'" +
-  //             value_txt +
-  //             "'&outputFormat=application/json";
-  //           newaddGeoJsonToMap(url, map, geojson);
-  //           newpopulateQueryTable(url, map);
-  //           setTimeout(function () {
-  //             newaddRowHandlers(url, map);
-  //           }, 300);
-  //           map.set("isLoading", "NO");
-  //         }
-  //       });
-  //   });
-  // }, []);
-
   return (
     <div
       id="map"
-      className="py-20 h-[100dvh] w-full flex flex-col justify-around content-center items-center text-white">
-      <div className="mb-10 text-center">
-        <h1 className="text-4xl font-bold mb-5">The Map</h1>
-        <p className="">
+      className="py-20 h-[100dvh] w-full flex flex-col justify-around content-center items-center text-black">
+      <div className="mb-10 text-center text-white">
+        <h1 className="text-xl md:text-4xl font-bold md:mb-5">The Map</h1>
+        <p className=" text-white text-justify md:px-52 text-sm md:text-md">
           Different colors represent different type of landcover.
         </p>
       </div>
@@ -966,8 +915,10 @@ const MapComponent = () => {
               />
             </button>
             <button
-              onClick={() => toggleQry(map)}
-              className="z-40 bg-purple-500 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100">
+              onClick={() => setToggleQuery(!toggleQuery)}
+              className={`${
+                toggleQuery ? "bg-green-100" : "bg-purple-500"
+              } z-40 font-bold h-8 w-8 rounded-sm border-none grid place-items-center hover:bg-green-100`}>
               <Image
                 width={20}
                 height={20}
@@ -978,7 +929,7 @@ const MapComponent = () => {
             </button>
           </div>
           {toggleFeatureInfo && propsValue.length !== 0 && (
-            <div className="bg-purple-500 opacity-80 text-sm p-2 rounded-lg shadow backdrop-blur-[1rem] text-left text-white">
+            <div className="bg-purple-500 opacity-80 text-sm p-2 rounded-lg shadow backdrop-blur-[1rem] text-left text-black">
               {Object.entries(propsValue).map(([key, value], index) => (
                 <div key={index}>
                   <p>
@@ -991,9 +942,61 @@ const MapComponent = () => {
               ))}
             </div>
           )}
-          {/* <div className="bg-purple-500 opacity-80 text-sm p-2 rounded-lg shadow backdrop-blur-[1rem] text-left text-white">
-            hey
-          </div> */}
+          {toggleQuery && (
+            <>
+              <div className="bg-purple-500 opacity-80 text-sm p-2 rounded-lg shadow backdrop-blur-[1rem] text-left text-black">
+                <select
+                  className="w-full bg-purple-500 opacity-80 scrollbar-thin scrollbar-thumb-green-100  scrollbar-track-purple-200"
+                  onChange={(e) => setSelectedRegion(e.target.value)}>
+                  <option value="">---</option>
+                  {regionsData.map((region, index) => (
+                    <option key={index} value={region}>
+                      {region}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {selectedRegion && (
+                <div className="bg-purple-500 opacity-80 text-sm p-2 rounded-lg shadow backdrop-blur-[1rem] text-left text-black">
+                  <select
+                    className="w-full bg-purple-500 opacity-80 scrollbar-thin scrollbar-thumb-green-100  scrollbar-track-purple-200"
+                    onChange={(e) => setSelectedProvince(e.target.value)}>
+                    <option value="">---</option>
+
+                    {provincesData.map((province, index) => (
+                      <option key={index} value={province}>
+                        {province}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {selectedRegion && selectedProvince && (
+                <div className="bg-purple-500 opacity-80 text-sm p-2 rounded-lg shadow backdrop-blur-[1rem] text-left text-black">
+                  <select
+                    className="w-full bg-purple-500 opacity-80 scrollbar-thin scrollbar-thumb-green-100 scrollbar-track-purple-200"
+                    onChange={(e) => setSelectedMunicipality(e.target.value)}>
+                    <option value="">---</option>
+
+                    {municipalitiesData.map((municipality, index) => (
+                      <option key={index} value={municipality}>
+                        {municipality}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {selectedRegion && selectedProvince && selectedMunicipality && (
+                <button
+                  onClick={async () => {
+                    await getMunicipalityCoordinates(map);
+                  }}
+                  className={`hover:scale-90  transition delay-75 duration-500 ease-in-out text-[18px] w-full text-sm py-2 rounded-full text-black bg-purple-600`}>
+                  View
+                </button>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>
