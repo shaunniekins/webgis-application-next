@@ -14,7 +14,7 @@ const Footer = () => {
   return (
     <div className=" bg-purple-900 w-screen rounded-t-3xl border-t-4 border-pink-700 px-8 lg:px-[200px] py-5 md:py-12 text-sm md:text-md">
       <div className="flex flex-col md:flex-row justify-between items-center 2xl:items-start gap-y-[20px] 2xl:gap-y-0 text-white ">
-        <h1 className=" font-bold">Philippines' Land Cover</h1>
+        <h1 className=" font-bold">Philippines&apos; Land Cover</h1>
         <div className="self-center 2xl:self-end flex gap-[24px]">
           <div className="hover:scale-125 transition delay-100 duration-500 ease-in-out">
             <Image
@@ -90,7 +90,7 @@ const Footer = () => {
       <div className="flex justify-center  md:justify-end mt-[30px] ">
         <div className="flex justify-center 2xl:justify-start items-center gap-1">
           <div className="text-white text-xs font-normal">
-            © {new Date().getFullYear()} Philippines' Land Cover
+            © {new Date().getFullYear()} Philippines&apos; Land Cover
           </div>
         </div>
       </div>

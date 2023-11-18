@@ -1,7 +1,7 @@
 "use client";
 
 // React imports
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 
 // OpenLayers imports
@@ -70,10 +70,14 @@ const MapComponent = () => {
   const butuanCityCoords = fromLonLat([125.568014, 8.8904]);
   const philippinesCoords = fromLonLat([122.563, 11.803]);
 
-  const mapView = new View({
-    center: philippinesCoords,
-    zoom: 6,
-  });
+  const mapView = useMemo(
+    () =>
+      new View({
+        center: philippinesCoords,
+        zoom: 6,
+      }),
+    [philippinesCoords]
+  );
 
   const nonTile = new TileLayer({
     title: "None",
@@ -465,7 +469,7 @@ const MapComponent = () => {
     }
   };
 
-  const toggleOffQry = () => {
+  const toggleOffQry = useCallback(() => {
     if (!toggleQuery) {
       setSelectedRegion("");
       setSelectedProvince("");
@@ -495,7 +499,7 @@ const MapComponent = () => {
       );
       while (elements.length > 0) elements[0].remove();
     }
-  };
+  }, []);
 
   useEffect(() => {
     toggleOffQry();
